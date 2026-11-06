@@ -7,7 +7,7 @@ Es la implementación del pseudocódigo del proyecto final de ADA.
 
 | Archivo | Contenido |
 |---|---|
-| `Producto.cs` | Clase `Producto` (id, nombre, categoría, precio, stock) y su formato de tabla. |
+| `Producto.cs` | Clase `Producto` (id, nombre, categoría, precio, stock), el formato de tabla y el formato de pesos mexicanos. |
 | `Inventario.cs` | Arreglo de 100 productos y las operaciones: agregar, buscar, eliminar, alertas y cálculos de reportes. |
 | `Program.cs` | Inicio de sesión, menú y lectura validada de datos. |
 | `InventarioTiendita.csproj` | Proyecto .NET 8. |
@@ -44,6 +44,8 @@ Se permiten 3 intentos; al tercer fallo el programa muestra "Acceso bloqueado" y
 
 ## Notas de implementación
 
+- Los precios están en **pesos mexicanos**. El formato se fija con la cultura `es-MX` en `Producto.CulturaMexico`, así que se ve igual (`$1,250.00 MXN`) aunque la computadora esté configurada en otro idioma.
+- Al capturar un precio se acepta tanto `1250.50` como `$1,250.50`.
 - El inventario usa un arreglo fijo de 100 posiciones y un contador `totalProductos`, igual que el pseudocódigo.
 - Las búsquedas son **secuenciales** (búsqueda lineal, O(n)).
 - Al eliminar, los elementos posteriores se desplazan una posición a la izquierda para no dejar huecos.

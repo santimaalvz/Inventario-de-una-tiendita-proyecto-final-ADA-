@@ -167,7 +167,7 @@ public static class Program
 
         string nombre = LeerTexto("Nombre: ");
         string categoria = LeerTexto("Categoría: ");
-        decimal precio = LeerDecimal("Precio: ", 0);
+        decimal precio = LeerDecimal("Precio en pesos: ", 0);
 
         Console.WriteLine("¿Cuántas unidades deseas añadir?");
         int unidades = LeerEntero("Unidades: ", 0, int.MaxValue);
@@ -189,12 +189,12 @@ public static class Program
         }
 
         Console.WriteLine(Producto.EncabezadoTabla());
-        Console.WriteLine(new string('-', 68));
+        Console.WriteLine(new string('-', Producto.EncabezadoTabla().Length));
 
         foreach (Producto producto in Tienda.Todos())
             Console.WriteLine(producto.ComoFila());
 
-        Console.WriteLine(new string('-', 68));
+        Console.WriteLine(new string('-', Producto.EncabezadoTabla().Length));
         Console.WriteLine($"Total de productos: {Tienda.TotalProductos}");
     }
 
@@ -220,7 +220,7 @@ public static class Program
         }
 
         Console.WriteLine(Producto.EncabezadoTabla());
-        Console.WriteLine(new string('-', 68));
+        Console.WriteLine(new string('-', Producto.EncabezadoTabla().Length));
 
         foreach (Producto producto in encontrados)
             Console.WriteLine(producto.ComoFila());
@@ -249,7 +249,7 @@ public static class Program
             decimal total = producto.Precio * cantidad;
 
             Console.WriteLine($"Venta realizada: {cantidad} x {producto.Nombre}");
-            Console.WriteLine($"Total a pagar : {total:C2}");
+            Console.WriteLine($"Total a pagar : {Producto.Moneda(total)}");
             Console.WriteLine($"Stock restante: {producto.Stock}");
         }
         else
@@ -322,11 +322,11 @@ public static class Program
         if (!string.IsNullOrWhiteSpace(categoria))
             producto.Categoria = categoria.Trim();
 
-        Console.Write($"Nuevo precio [{producto.Precio:0.00}]: ");
+        Console.Write($"Nuevo precio en pesos [{Producto.Cantidad(producto.Precio)}]: ");
         string textoPrecio = Console.ReadLine() ?? string.Empty;
         if (!string.IsNullOrWhiteSpace(textoPrecio))
         {
-            if (decimal.TryParse(textoPrecio, NumberStyles.Number, CultureInfo.CurrentCulture, out decimal precio) && precio >= 0)
+            if (decimal.TryParse(textoPrecio, NumberStyles.Currency, Producto.CulturaMexico, out decimal precio) && precio >= 0)
                 producto.Precio = precio;
             else
                 Console.WriteLine("Precio inválido, se conservó el valor anterior.");
@@ -426,10 +426,10 @@ public static class Program
 
         Console.WriteLine($"Productos distintos    : {Tienda.TotalProductos}");
         Console.WriteLine($"Unidades en existencia : {Tienda.UnidadesTotales()}");
-        Console.WriteLine($"Valor total inventario : {valorTotal:C2}");
-        Console.WriteLine($"Producto más caro      : {masCaro.Nombre} ({masCaro.Precio:C2})");
-        Console.WriteLine($"Producto más barato    : {masBarato.Nombre} ({masBarato.Precio:C2})");
-        Console.WriteLine($"Precio promedio        : {promedio:C2}");
+        Console.WriteLine($"Valor total inventario : {Producto.Moneda(valorTotal)}");
+        Console.WriteLine($"Producto más caro      : {masCaro.Nombre} ({Producto.Moneda(masCaro.Precio)})");
+        Console.WriteLine($"Producto más barato    : {masBarato.Nombre} ({Producto.Moneda(masBarato.Precio)})");
+        Console.WriteLine($"Precio promedio        : {Producto.Moneda(promedio)}");
     }
 
     // -------------------------------------------------------- LECTURA SEGURA
@@ -457,10 +457,11 @@ public static class Program
             Console.Write(mensaje);
             string entrada = Console.ReadLine() ?? string.Empty;
 
-            if (decimal.TryParse(entrada, NumberStyles.Number, CultureInfo.CurrentCulture, out decimal valor) && valor >= minimo)
+            // NumberStyles.Currency acepta también que el usuario escriba el signo de pesos.
+            if (decimal.TryParse(entrada, NumberStyles.Currency, Producto.CulturaMexico, out decimal valor) && valor >= minimo)
                 return valor;
 
-            Console.WriteLine($"Dato inválido. Escribe un número mayor o igual a {minimo}.");
+            Console.WriteLine($"Dato inválido. Escribe una cantidad en pesos mayor o igual a {Producto.Cantidad(minimo)}.");
         }
     }
 
