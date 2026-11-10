@@ -92,27 +92,26 @@ Al entrar como cliente, el programa pide elegir un tier antes de mostrar el men�
 
 **Requisito:** [.NET 8 SDK](https://dotnet.microsoft.com/download/dotnet/8.0)
 
-El repositorio contiene el archivo fuente suelto, sin archivo de proyecto, así que hay que
-crear uno para compilarlo:
-
 ```bash
 git clone git@github.com:santimaalvz/Inventario-de-una-tiendita-proyecto-final-ADA-.git
 cd Inventario-de-una-tiendita-proyecto-final-ADA-
-
-dotnet new console -o InventarioTiendita
-cp "Proyecto_Final_ADA_EQUIPO2#_InventarioTienda.cs" InventarioTiendita/Program.cs
-
-cd InventarioTiendita
 dotnet run
 ```
 
-El código usa instrucciones de nivel superior, por eso funciona directo como `Program.cs`.
+El proyecto también se abre directo en Visual Studio o Rider con el archivo
+`InventarioTiendita.csproj`.
 
 ---
 
-## 🗂️ Estructura del código
+## 🗂️ Estructura del repositorio
 
-Todo vive en un solo archivo. Estas son sus piezas:
+| Archivo                                           | Para qué sirve                        |
+|---------------------------------------------------|---------------------------------------|
+| `Proyecto_Final_ADA_EQUIPO2#_InventarioTienda.cs` | Todo el código del programa           |
+| `InventarioTiendita.csproj`                       | Configuración del proyecto .NET 8     |
+| `.gitignore`                                      | Excluye `bin/`, `obj/` y temporales   |
+
+Dentro del archivo de código, estas son sus piezas:
 
 | Pieza                                      | Responsabilidad                                          |
 |--------------------------------------------|----------------------------------------------------------|
@@ -167,20 +166,23 @@ Constantes de diseño:
 - [x] Alertas de agotado y stock bajo
 - [x] Reporte de valor total, extremos de precio y promedio
 - [x] Validación de todas las entradas del usuario
+- [x] `struct Usuario` declarado y el arreglo `usuarios` inicializado al inicio del programa
+- [x] `.csproj` y `.gitignore` en el repositorio: el proyecto compila y se ejecuta al clonar
 
 ### Pendiente
 
-**Fase 1 — Integrar el `struct Usuario`**
-- [ ] Cerrar la declaración del arreglo `usuarios` y moverla antes de los menús
-- [ ] Validar el login recorriendo ese arreglo en vez de comparar las credenciales a mano
+**Fase 1 — Terminar de integrar el `struct Usuario`**
+- [ ] Validar el login recorriendo el arreglo `usuarios` en vez de comparar las credenciales a mano
 - [ ] Derivar el rol de `IsAdmin` en lugar de comparar el nombre con `"admin"`
-  → *El struct ya existe, pero todavía no se usa: el login sigue con las credenciales escritas
-  en el `if`. Cerrar esto es lo que permite agregar más usuarios sin tocar la lógica.*
+  → *El arreglo ya se llena al arrancar, pero todavía no se lee: el login sigue con las
+  credenciales escritas en el `if`. Cerrar esto es lo que permite agregar más usuarios sin
+  tocar la lógica.*
 
-**Fase 2 — Archivo de proyecto**
-- [ ] Añadir el `.csproj` al repositorio
-  → *Hoy el repo solo tiene el `.cs` suelto, así que quien clone tiene que crear el proyecto a
-  mano antes de poder ejecutarlo.*
+**Fase 2 — Registro de usuarios**
+- [ ] Leer la opción del menú "Registrar nuevo usuario / Ingresar usuario"
+- [ ] Implementar el alta de un usuario nuevo en el arreglo `usuarios`
+  → *El programa ya muestra ese menú al arrancar, pero no lee la respuesta: cae directo al
+  inicio de sesión. El arreglo tiene espacio para 100 usuarios y solo se usan 2.*
 
 **Fase 3 — Moneda**
 - [ ] Fijar la cultura `es-MX` al formatear los precios
@@ -207,11 +209,15 @@ Constantes de diseño:
 
 ---
 
-## 👤 Autor
+## 🤝 Integrantes
 
-**Santiago Morales Alvarez** — [@santimaalvz](https://github.com/santimaalvz)
-
-🎓 0308821@up.edu.mx  ·  📧 santi.morales08@outlook.com
+| # | Nombre                      |
+|---|-----------------------------|
+| 1 | Juan Pablo Beltran Salom    |
+| 2 | Santiago Morales Alvarez    |
+| 3 | Rafael Morgado Briseño      |
+| 4 | Geovanni Marrero Echeverria |
+| 5 | Jose Eduardo Tejada Miranda |
 
 ## 📄 Licencia
 
