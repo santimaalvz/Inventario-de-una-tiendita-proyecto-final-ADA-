@@ -2,8 +2,11 @@
 // Cada posición contiene un producto y totalProductos indica cuántas posiciones se usan.
 // Cantidad actual de productos registrados en el arreglo.
 Producto[] inventario = new Producto[100];
-//Usuarios necesarios para el programa
+int totalProductos = 0;
+// Cantidad actual de usuarios actual en el arreglo
 Usuario[] usuarios = new Usuario[100];
+int totalUsuarios = 0;
+// Usuarios ya precreados en el programa
 usuarios[0].Username = "admin";
 usuarios[0].Password = "1234";
 usuarios[0].IsAdmin = true;
@@ -11,8 +14,8 @@ usuarios[0].IsAdmin = true;
 usuarios[1].Username = "cliente";
 usuarios[1].Password = "1234";
 usuarios[1].IsAdmin = false;
-
-int totalProductos = 0;
+//Inicializa la variable de opcion0
+int opcion0 = 0;
 // Contador de intentos fallidos de inicio de sesión.
 int intentos = 0;
 // Indica si las credenciales ingresadas son correctas.
@@ -21,30 +24,57 @@ bool acceso = false;
 string usuario = "";
 // Porcentaje de descuento del cliente. El administrador mantiene el valor 0.
 decimal descuento = 0;
-Console.Write("Que desea hacer?\n1. Registrar nuevo usuario\n2. Ingresar usuario");
-// Se permiten hasta tres intentos para ingresar al sistema.
-while (intentos < 3 && !acceso)
+// Checa si es admin o no
+bool IsAdmin = false;
+// === PROGRAMA ===
+//Se inicia preguntando al usuario que es lo que quiere hacer
+Console.WriteLine("=== Bienvenido ===");
+do
 {
-    Console.Write("Usuario: ");
-    usuario = (Console.ReadLine() ?? "").Trim();
-    Console.Write("Contraseña: ");
-    string contraseña = (Console.ReadLine() ?? "").Trim();
+    Console.Write("Que desea hacer?\n1. Registrar nuevo usuario\n2. Ingresar usuario");
+} while (opcion0 != 2);
 
-    // Primero se rechazan entradas vacías para no procesar datos incompletos.
-    if (string.IsNullOrWhiteSpace(usuario) || string.IsNullOrWhiteSpace(contraseña))
+opcion0 = LeerEntero("Opcion: ", 1,2);
+if (opcion0 == 1)
+{
+    CrearUsuario();
+}
+else if (opcion0 == 2)
+{
+    //Se permite hasta 3 intentos para accesar
+    while (intentos < 3 && !acceso)
     {
-        intentos++;
-        Console.WriteLine("El usuario y la contraseña no pueden estar vacíos.");
-    }
-    // Solo se permiten los dos usuarios definidos y la contraseña establecida.
-    else if ((usuario == "admin" || usuario == "cliente") && contraseña == "1234")
-    {
-        acceso = true;
-    }
-    else
-    {
-        intentos++;
-        Console.WriteLine("Usuario o contraseña incorrectos.");
+        Console.Write("Usuario: ");
+        usuario = Console.ReadLine();
+        Console.Write("Contraseña: ");
+        string contrasena = Console.ReadLine();
+
+        // Busca el usuario solo en los espacios ocupados dentro de la base de datos
+        for (int i = 0; i < totalUsuarios; i++)
+        {
+            if (usuarios[i].Username == usuario && usuarios[i].Password == contrasena)
+            {
+                acceso = true;
+                IsAdmin = usuarios[i].IsAdmin;
+            }
+        }
+
+        if (acceso == true)
+        {
+            if (IsAdmin == true)
+            {
+                Console.WriteLine("Bienvenido, administrador\n");
+            }
+            else
+            {
+                Console.WriteLine("Bienvenido, " + usuario + "\n");
+            }
+        }
+        else
+        {
+            intentos = intentos + 1;
+            Console.WriteLine("Usuario o contraseña incorrectos (intento " + intentos + " de 3)");
+        }
     }
 }
 
@@ -56,7 +86,7 @@ if (!acceso)
 }
 
 // El cliente selecciona un tier que determina el porcentaje de descuento.
-if (usuario == "cliente")
+if (!IsAdmin)
 {
     int tier;
     do
@@ -85,7 +115,7 @@ if (usuario == "cliente")
 // Esta variable controla la opción elegida en cualquiera de los menús.
 int opcion;
 // El administrador tiene permisos para modificar y consultar todo el inventario.
-if (usuario == "admin")
+if (IsAdmin)
 {
     do
     {
@@ -479,6 +509,56 @@ static void Reporte(Producto[] inventario, int totalProductos)
     Console.WriteLine("Precio promedio: " + (sumaPrecios / totalProductos).ToString("C"));
 }
 
+ 
+void CrearUsuario()
+{
+    if (totalUsuarios >= usuarios.Length)
+    {
+        Console.WriteLine("Lo sentimos, ya no hay espacio para más usuarios, intente mas tarde");
+        return;
+    }
+ 
+    string nombre = LeerTexto("Nuevo nombre de usuario: ");
+ 
+    if (nombre == "")
+    {
+        Console.WriteLine("El nombre no puede estar vacío");
+        return;
+    }
+ 
+    // Revisa que el nombre no esté ocupado
+    for (int i = 0; i < totalUsuarios; i++)
+    {
+        if (usuarios[i].Username == nombre)
+        {
+            Console.WriteLine("Ese usuario ya existe");
+            return;
+        }
+    }
+ 
+    string contrasena = LeerTexto("Contraseña: ");
+    string confirmacion = LeerTexto("Confirma la contraseña: ");
+ 
+    if (contrasena == "")
+    {
+        Console.WriteLine("La contraseña no puede estar vacía");
+        return;
+    }
+ 
+    if (contrasena != confirmacion)
+    {
+        Console.WriteLine("Las contraseñas no coinciden");
+        return;
+    }
+ 
+    // Se guarda en el siguiente espacio libre
+    usuarios[totalUsuarios].Username = nombre;
+    usuarios[totalUsuarios].Password = contrasena;
+    usuarios[totalUsuarios].IsAdmin = false;   // los usuarios nuevos siempre son normales
+    totalUsuarios = totalUsuarios + 1;
+ 
+    Console.WriteLine("Usuario creado. Ya puedes iniciar sesión");
+}
 // Struct que agrupa todos los datos relacionados con un producto.
 // Se utiliza como tipo de dato para guardar elementos en el arreglo inventario.
 struct Producto
