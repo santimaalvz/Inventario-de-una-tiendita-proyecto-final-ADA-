@@ -480,3 +480,9 @@ struct Producto
     public decimal Precio;
     public int Stock;
 }
+
+struct Usuario
+{
+    public string Username;
+    public string Password;
+}
