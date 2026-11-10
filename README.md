@@ -1,1 +1,1 @@
-# Inventario-de-una-tiendita-proyecto-final-ADA-
+# Inventario de una tiendita proyecto final ADA
