@@ -485,4 +485,15 @@ struct Usuario
 {
     public string Username;
     public string Password;
+    public bool IsAdmin;
 }
+
+Usuario[] usuarios = new Usuario[2]
+ 
+usuarios[0].nombre = "admin";
+usuarios[0].Password = "1234";
+usuarios[0].IsAdmin = true;
+
+usuarios[1].nombre = "cliente";
+usuarios[1].Password = "1234";
+ususarios[1].IsAdmin = false;
