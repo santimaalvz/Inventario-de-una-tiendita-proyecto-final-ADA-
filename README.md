@@ -21,7 +21,6 @@ Proyecto final de Análisis y Diseño de Algoritmos (ADA) · Equipo 2
 |---------|-----------------|
 | [📌 Qué es](#que-es) | El proyecto en pocas palabras |
 | [✨ Características](#caracteristicas) | Lo que el programa sabe hacer |
-| [🔀 Cómo funciona](#como-funciona) | Diagrama de flujo del programa |
 | [👥 Usuarios y roles](#usuarios) | Credenciales y tiers de descuento |
 | [🖥️ Vista previa](#vista-previa) | Salida real de la consola |
 | [🧾 Los menús](#menus) | Cada opción, explicada |
@@ -71,40 +70,6 @@ delegarle el trabajo a una librería.
 | 🔔 | **Alertas** | Productos agotados y con stock bajo |
 | 📊 | **Reportes** | Valor total, extremos de precio y promedio |
 | ✅ | **Entrada blindada** | Ningún dato inválido tumba el programa |
-
----
-
-<a id="como-funciona"></a>
-
-## 🔀 Cómo funciona
-
-```mermaid
-flowchart TD
-    A([Inicio]) --> B[/Usuario y contraseña/]
-    B --> C{¿Credenciales<br/>correctas?}
-    C -->|No, quedan intentos| B
-    C -->|No, 3 intentos fallidos| X([Acceso bloqueado])
-    C -->|Si| D{¿Que rol?}
-
-    D -->|admin| E[MENU DE ADMINISTRADOR<br/>10 opciones]
-    D -->|cliente| F[/Elegir tier:<br/>5% · 10% · 15%/]
-    F --> G[MENU DE CLIENTE<br/>3 opciones]
-
-    E --> E1[Agregar · Editar · Eliminar]
-    E --> E2[Ver · Buscar por ID]
-    E --> E3[Vender · Agregar stock]
-    E --> E4[Alertas · Reportes]
-
-    G --> G1[Ver inventario]
-    G --> G2[Comprar con descuento]
-
-    E1 --> Z([Programa finalizado])
-    E2 --> Z
-    E3 --> Z
-    E4 --> Z
-    G1 --> Z
-    G2 --> Z
-```
 
 ---
 
