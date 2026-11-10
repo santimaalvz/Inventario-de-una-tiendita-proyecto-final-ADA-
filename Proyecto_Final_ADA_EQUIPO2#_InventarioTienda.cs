@@ -1,8 +1,17 @@
 // Arreglo que almacena como máximo 100 productos durante la ejecución.
 // Cada posición contiene un producto y totalProductos indica cuántas posiciones se usan.
-
-Producto[] inventario = new Producto[100];
 // Cantidad actual de productos registrados en el arreglo.
+Producto[] inventario = new Producto[100];
+//Usuarios necesarios para el programa
+Usuario[] usuarios = new Usuario[100];
+usuarios[0].Username = "admin";
+usuarios[0].Password = "1234";
+usuarios[0].IsAdmin = true;
+
+usuarios[1].Username = "cliente";
+usuarios[1].Password = "1234";
+usuarios[1].IsAdmin = false;
+
 int totalProductos = 0;
 // Contador de intentos fallidos de inicio de sesión.
 int intentos = 0;
@@ -12,7 +21,7 @@ bool acceso = false;
 string usuario = "";
 // Porcentaje de descuento del cliente. El administrador mantiene el valor 0.
 decimal descuento = 0;
-
+Console.Write("Que desea hacer?\n1. Registrar nuevo usuario\n2. Ingresar usuario");
 // Se permiten hasta tres intentos para ingresar al sistema.
 while (intentos < 3 && !acceso)
 {
@@ -488,12 +497,3 @@ struct Usuario
     public bool IsAdmin;
 }
 
-Usuario[] usuarios = new Usuario[2]
- 
-usuarios[0].nombre = "admin";
-usuarios[0].Password = "1234";
-usuarios[0].IsAdmin = true;
-
-usuarios[1].nombre = "cliente";
-usuarios[1].Password = "1234";
-ususarios[1].IsAdmin = false;
