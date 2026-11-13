@@ -1,227 +1,212 @@
 // Arreglo que almacena como máximo 100 productos durante la ejecución.
-// Cada posición contiene un producto y totalProductos indica cuántas posiciones se usan.
-// Cantidad actual de productos registrados en el arreglo.
+// Solo se recorren las posiciones de 0 a totalProductos - 1.
+
 Producto[] inventario = new Producto[100];
+// Cantidad actual de productos registrados en el arreglo.
 int totalProductos = 0;
-// Cantidad actual de usuarios actual en el arreglo
+
+// Arreglo de usuarios registrados durante la ejecución.
 Usuario[] usuarios = new Usuario[100];
-int totalUsuarios = 0;
-// Usuarios ya precreados en el programa
-usuarios[0].Username = "admin";
-usuarios[0].Password = "1234";
-usuarios[0].IsAdmin = true;
+int totalUsuarios = 2;
+usuarios[0] = new Usuario
+{
+    Username = "admin",
+    Password = "1234",
+    IsAdmin = true
+};
+usuarios[1] = new Usuario
+{
+    Username = "cliente",
+    Password = "1234",
+    IsAdmin = false
+};
 
-usuarios[1].Username = "cliente";
-usuarios[1].Password = "1234";
-usuarios[1].IsAdmin = false;
-//Inicializa la variable de opcion0
-int opcion0 = 0;
-// Contador de intentos fallidos de inicio de sesión.
 int intentos = 0;
-// Indica si las credenciales ingresadas son correctas.
 bool acceso = false;
-// Guarda el nombre del usuario que inició sesión.
 string usuario = "";
-// Porcentaje de descuento del cliente. El administrador mantiene el valor 0.
+bool esAdministrador = false;
+// El descuento se conserva como decimal para evitar errores de redondeo.
 decimal descuento = 0;
-// Checa si es admin o no
-bool IsAdmin = false;
-// === PROGRAMA ===
-//Se inicia preguntando al usuario que es lo que quiere hacer
-Console.WriteLine("=== Bienvenido ===");
-do
-{
-    Console.Write("Que desea hacer?\n1. Registrar nuevo usuario\n2. Ingresar usuario");
-} while (opcion0 != 2);
 
-opcion0 = LeerEntero("Opcion: ", 1,2);
-if (opcion0 == 1)
+while (!acceso)
 {
-    CrearUsuario();
-}
-else if (opcion0 == 2)
-{
-    //Se permite hasta 3 intentos para accesar
-    while (intentos < 3 && !acceso)
+    MostrarEncabezado("SISTEMA DE INVENTARIO");
+    Console.WriteLine("  1. Registrar nuevo usuario");
+    Console.WriteLine("  2. Ingresar al sistema");
+    Console.WriteLine();
+    int opcionInicio = LeerEntero("  Seleccione una opción: ", 1, 2);
+
+    if (opcionInicio == 1)
     {
-        Console.Write("Usuario: ");
-        usuario = Console.ReadLine();
-        Console.Write("Contraseña: ");
-        string contrasena = Console.ReadLine();
+        CrearUsuario(usuarios, ref totalUsuarios);
+    }
+    else
+    {
+        MostrarEncabezado("INICIO DE SESIÓN");
+        Console.WriteLine("Ingrese sus credenciales para continuar.");
+        Console.WriteLine();
 
-        // Busca el usuario solo en los espacios ocupados dentro de la base de datos
-        for (int i = 0; i < totalUsuarios; i++)
+        // Se permiten hasta tres intentos para ingresar al sistema.
+        while (intentos < 3 && !acceso)
         {
-            if (usuarios[i].Username == usuario && usuarios[i].Password == contrasena)
+            Console.Write("  Usuario: ");
+            usuario = (Console.ReadLine() ?? "").Trim();
+            Console.Write("  Contraseña: ");
+            string contraseña = (Console.ReadLine() ?? "").Trim();
+            int posicionUsuario = BuscarUsuario(usuarios, totalUsuarios, usuario, contraseña);
+
+            if (posicionUsuario != -1)
             {
                 acceso = true;
-                IsAdmin = usuarios[i].IsAdmin;
-            }
-        }
-
-        if (acceso == true)
-        {
-            if (IsAdmin == true)
-            {
-                Console.WriteLine("Bienvenido, administrador\n");
+                esAdministrador = usuarios[posicionUsuario].IsAdmin;
             }
             else
             {
-                Console.WriteLine("Bienvenido, " + usuario + "\n");
+                intentos++;
+                Console.WriteLine("[AVISO] Usuario o contraseña incorrectos " +
+                                  $"(intento {intentos} de 3).");
             }
         }
-        else
+
+        if (!acceso)
         {
-            intentos = intentos + 1;
-            Console.WriteLine("Usuario o contraseña incorrectos (intento " + intentos + " de 3)");
+            Console.WriteLine("\nAcceso bloqueado. Se agotaron los intentos permitidos.");
+            return;
         }
     }
 }
 
-// Si se agotaron los intentos, el programa termina sin mostrar ningún menú.
-if (!acceso)
+if (esAdministrador)
 {
-    Console.WriteLine("Acceso bloqueado.");
-    return;
+    Console.WriteLine("\nBienvenido, administrador.");
+}
+else
+{
+    Console.WriteLine($"\nBienvenido, {usuario}.");
 }
 
 // El cliente selecciona un tier que determina el porcentaje de descuento.
-if (!IsAdmin)
+if (!esAdministrador)
 {
-    int tier;
-    do
-    {
-        Console.WriteLine("1. Tier Básico - 5%");
-        Console.WriteLine("2. Tier Plata - 10%");
-        Console.WriteLine("3. Tier Oro - 15%");
-        tier = LeerEntero("Elige tu tier: ", 1, 3);
+    MostrarEncabezado("SELECCIÓN DE TIER");
+    Console.WriteLine("  1. Tier Básico - 5%");
+    Console.WriteLine("  2. Tier Plata  - 10%");
+    Console.WriteLine("  3. Tier Oro    - 15%");
+    Console.WriteLine();
+    int tier = LeerEntero("  Elige tu tier: ", 1, 3);
 
-        // Se asigna el descuento correspondiente al tier seleccionado.
-        if (tier == 1)
-        {
-            descuento = 0.05m;
-        }
-        else if (tier == 2)
-        {
-            descuento = 0.10m;
-        }
-        else if (tier == 3)
-        {
-            descuento = 0.15m;
-        }
-    } while (tier < 1 || tier > 3);
+    if (tier == 1)
+    {
+        descuento = Convert.ToDecimal(0.05);
+    }
+    else if (tier == 2)
+    {
+        descuento = Convert.ToDecimal(0.10);
+    }
+    else
+    {
+        descuento = Convert.ToDecimal(0.15);
+    }
 }
 
-// Esta variable controla la opción elegida en cualquiera de los menús.
 int opcion;
-// El administrador tiene permisos para modificar y consultar todo el inventario.
-if (IsAdmin)
+// El administrador puede consultar y modificar todo el inventario.
+if (esAdministrador)
 {
     do
     {
+        MostrarEncabezado("MENÚ DE ADMINISTRADOR");
+        Console.WriteLine("  1. Agregar producto");
+        Console.WriteLine("  2. Ver productos");
+        Console.WriteLine("  3. Buscar producto");
+        Console.WriteLine("  4. Vender producto");
+        Console.WriteLine("  5. Agregar stock");
+        Console.WriteLine("  6. Editar producto");
+        Console.WriteLine("  7. Eliminar producto");
+        Console.WriteLine("  8. Ver alertas");
+        Console.WriteLine("  9. Generar reportes");
+        Console.WriteLine("  10. Salir");
         Console.WriteLine();
-        Console.WriteLine("MENÚ DE ADMINISTRADOR");
-        Console.WriteLine("1. Agregar producto");
-        Console.WriteLine("2. Ver productos");
-        Console.WriteLine("3. Buscar producto");
-        Console.WriteLine("4. Vender producto");
-        Console.WriteLine("5. Agregar stock");
-        Console.WriteLine("6. Editar producto");
-        Console.WriteLine("7. Eliminar producto");
-        Console.WriteLine("8. Ver alertas");
-        Console.WriteLine("9. Generar reportes");
-        Console.WriteLine("10. Salir");
-        opcion = LeerEntero("Elige una opción: ", 1, 10);
+        opcion = LeerEntero("  Seleccione una opción: ", 1, 10);
 
-        // Opción 1: registrar un producto nuevo.
         if (opcion == 1)
         {
             if (totalProductos == inventario.Length)
             {
-                Console.WriteLine("El inventario está lleno.");
+                Console.WriteLine("\n[AVISO] El inventario está lleno.");
             }
             else
             {
                 Producto producto;
                 producto.Id = LeerIdNuevo(inventario, totalProductos);
-                producto.Nombre = LeerTexto("Nombre: ");
-                producto.Categoria = LeerTexto("Categoría: ");
-                producto.Precio = LeerDecimal("Precio: ", 0.01m);
-                producto.Stock = LeerEntero("Stock inicial: ", 0, int.MaxValue);
+                producto.Nombre = LeerTexto("  Nombre: ");
+                producto.Categoria = LeerTexto("  Categoría: ");
+                producto.Precio = LeerDecimal("  Precio: ", 0.01m);
+                producto.Stock = LeerEntero("  Stock inicial: ", 0, int.MaxValue);
                 inventario[totalProductos] = producto;
                 totalProductos++;
-                Console.WriteLine("Producto agregado.");
+                Console.WriteLine("\n[OK] Producto agregado correctamente.");
             }
         }
-        // Opción 2: mostrar todos los productos registrados.
         else if (opcion == 2)
         {
             MostrarProductos(inventario, totalProductos);
         }
-        // Opción 3: buscar y mostrar un producto por su ID.
         else if (opcion == 3)
         {
-            int id = LeerEntero("Id del producto: ", 1, int.MaxValue);
+            int id = LeerEntero("  Id del producto: ", 1, int.MaxValue);
             int posicion = BuscarProducto(inventario, totalProductos, id);
             if (posicion == -1)
             {
-                Console.WriteLine("Producto no encontrado.");
+                Console.WriteLine("\n[AVISO] Producto no encontrado.");
             }
             else
             {
                 MostrarProducto(inventario[posicion]);
             }
         }
-        // Opción 4: realizar una venta sin permitir stock negativo.
         else if (opcion == 4)
         {
             Vender(inventario, totalProductos, 0);
         }
-        // Opción 5: aumentar el stock de un producto existente.
         else if (opcion == 5)
         {
             AgregarStock(inventario, totalProductos);
         }
-        // Opción 6: cambiar los datos de un producto existente.
         else if (opcion == 6)
         {
             EditarProducto(inventario, totalProductos);
         }
-        // Opción 7: eliminar un producto y compactar el arreglo.
         else if (opcion == 7)
         {
             EliminarProducto(inventario, ref totalProductos);
         }
-        // Opción 8: avisar si algún producto está agotado o tiene poco stock.
         else if (opcion == 8)
         {
             VerAlertas(inventario, totalProductos);
         }
-        // Opción 9: calcular información general del inventario.
         else if (opcion == 9)
         {
             Reporte(inventario, totalProductos);
         }
     } while (opcion != 10);
 }
-// El cliente solo puede consultar y comprar; no puede cambiar el inventario.
+// El cliente solo puede consultar y comprar.
 else
 {
     do
     {
+        MostrarEncabezado("MENÚ DE CLIENTE");
+        Console.WriteLine("  1. Ver inventario");
+        Console.WriteLine("  2. Comprar producto");
+        Console.WriteLine("  3. Salir");
         Console.WriteLine();
-        Console.WriteLine("MENÚ DE CLIENTE");
-        Console.WriteLine("1. Ver inventario");
-        Console.WriteLine("2. Comprar producto");
-        Console.WriteLine("3. Salir");
-        opcion = LeerEntero("Elige una opción: ", 1, 3);
+        opcion = LeerEntero("  Seleccione una opción: ", 1, 3);
 
-        // Opción 1: consultar los productos disponibles.
         if (opcion == 1)
         {
             MostrarProductos(inventario, totalProductos);
         }
-        // Opción 2: comprar un producto aplicando su descuento.
         else if (opcion == 2)
         {
             Vender(inventario, totalProductos, descuento);
@@ -229,23 +214,29 @@ else
     } while (opcion != 3);
 }
 
-Console.WriteLine("Programa finalizado.");
+Console.WriteLine("\nPrograma finalizado. Gracias por utilizar el sistema.");
 
-// Lee un número entero y repite la solicitud hasta que esté dentro del rango.
-// mensaje: texto que se muestra; minimo y maximo: límites permitidos.
-// Devuelve el número validado para que el resto del programa pueda usarlo con seguridad.
+// Muestra un encabezado uniforme para separar las secciones de la consola.
+static void MostrarEncabezado(string titulo)
+{
+    Console.WriteLine();
+    Console.WriteLine("==================================================");
+    Console.WriteLine($"                 {titulo}");
+    Console.WriteLine("==================================================");
+}
+
+// Lee un entero válido dentro del rango indicado.
 static int LeerEntero(string mensaje, int minimo, int maximo)
 {
     int valor;
     string entrada;
-    // El do-while garantiza que el usuario vea la solicitud al menos una vez.
     do
     {
         Console.Write(mensaje);
         entrada = Console.ReadLine() ?? "";
         if (!int.TryParse(entrada, out valor) || valor < minimo || valor > maximo)
         {
-            Console.WriteLine("Escribe un número válido entre " + minimo + " y " + maximo + ".");
+            Console.WriteLine("[AVISO] Escribe un número válido entre " + minimo + " y " + maximo + ".");
             valor = minimo - 1;
         }
     } while (valor < minimo || valor > maximo);
@@ -253,8 +244,7 @@ static int LeerEntero(string mensaje, int minimo, int maximo)
     return valor;
 }
 
-// Lee un precio decimal y acepta únicamente valores mayores o iguales al mínimo.
-// Devuelve el precio validado.
+// Lee un precio decimal mayor o igual al mínimo indicado.
 static decimal LeerDecimal(string mensaje, decimal minimo)
 {
     decimal valor;
@@ -265,7 +255,7 @@ static decimal LeerDecimal(string mensaje, decimal minimo)
         entrada = Console.ReadLine() ?? "";
         if (!decimal.TryParse(entrada, out valor) || valor < minimo)
         {
-            Console.WriteLine("El valor debe ser un número mayor o igual a " + minimo + ".");
+            Console.WriteLine("[AVISO] El valor debe ser un número mayor o igual a " + minimo + ".");
             valor = minimo - 1;
         }
     } while (valor < minimo);
@@ -273,8 +263,7 @@ static decimal LeerDecimal(string mensaje, decimal minimo)
     return valor;
 }
 
-// Lee nombres y categorías. No permite cadenas vacías o formadas solo por espacios.
-// Devuelve el texto recortado de espacios al inicio y al final.
+// Lee texto no vacío y elimina espacios al inicio y al final.
 static string LeerTexto(string mensaje)
 {
     string texto;
@@ -284,15 +273,14 @@ static string LeerTexto(string mensaje)
         texto = (Console.ReadLine() ?? "").Trim();
         if (string.IsNullOrWhiteSpace(texto))
         {
-            Console.WriteLine("El texto no puede estar vacío.");
+            Console.WriteLine("[AVISO] El texto no puede estar vacío.");
         }
     } while (string.IsNullOrWhiteSpace(texto));
 
     return texto;
 }
 
-// Solicita un ID nuevo y verifica que no esté repetido en el inventario.
-// Repite la solicitud hasta recibir un entero positivo que no exista.
+// Solicita un ID positivo que no esté repetido.
 static int LeerIdNuevo(Producto[] inventario, int totalProductos)
 {
     int id;
@@ -301,7 +289,7 @@ static int LeerIdNuevo(Producto[] inventario, int totalProductos)
         id = LeerEntero("Id: ", 1, int.MaxValue);
         if (BuscarProducto(inventario, totalProductos, id) != -1)
         {
-            Console.WriteLine("Ese ID ya existe. Usa otro.");
+            Console.WriteLine("[AVISO] Ese ID ya existe. Usa otro.");
             id = 0;
         }
     } while (id <= 0);
@@ -309,8 +297,67 @@ static int LeerIdNuevo(Producto[] inventario, int totalProductos)
     return id;
 }
 
-// Busca un producto recorriendo únicamente las posiciones ocupadas del arreglo.
-// Devuelve la posición encontrada o -1 si el ID no existe.
+// Busca un usuario comparando el nombre y la contraseña.
+// Devuelve su posición o -1 si las credenciales no coinciden.
+static int BuscarUsuario(Usuario[] usuarios, int totalUsuarios,
+                         string username, string password)
+{
+    for (int i = 0; i < totalUsuarios; i++)
+    {
+        if (usuarios[i].Username == username && usuarios[i].Password == password)
+        {
+            return i;
+        }
+    }
+
+    return -1;
+}
+
+// Registra un usuario nuevo y lo agrega a la siguiente posición disponible.
+// Los usuarios registrados comienzan con permisos de cliente.
+static void CrearUsuario(Usuario[] usuarios, ref int totalUsuarios)
+{
+    MostrarEncabezado("REGISTRO DE USUARIO");
+
+    if (totalUsuarios == usuarios.Length)
+    {
+        Console.WriteLine("[AVISO] No hay espacio para registrar más usuarios.");
+        return;
+    }
+
+    string username = LeerTexto("  Nuevo usuario: ");
+    if (BuscarUsuarioPorNombre(usuarios, totalUsuarios, username) != -1)
+    {
+        Console.WriteLine("[AVISO] Ese nombre de usuario ya está registrado.");
+        return;
+    }
+
+    string password = LeerTexto("  Nueva contraseña: ");
+    usuarios[totalUsuarios] = new Usuario
+    {
+        Username = username,
+        Password = password,
+        IsAdmin = false
+    };
+    totalUsuarios++;
+    Console.WriteLine("\n[OK] Usuario registrado correctamente.");
+}
+
+// Busca un nombre de usuario sin revisar la contraseña.
+static int BuscarUsuarioPorNombre(Usuario[] usuarios, int totalUsuarios, string username)
+{
+    for (int i = 0; i < totalUsuarios; i++)
+    {
+        if (usuarios[i].Username == username)
+        {
+            return i;
+        }
+    }
+
+    return -1;
+}
+
+// Busca secuencialmente un producto y devuelve su posición o -1.
 static int BuscarProducto(Producto[] inventario, int totalProductos, int id)
 {
     for (int i = 0; i < totalProductos; i++)
@@ -324,22 +371,22 @@ static int BuscarProducto(Producto[] inventario, int totalProductos, int id)
     return -1;
 }
 
-// Muestra en una sola línea todos los datos de un producto.
-// Es void porque realiza una acción de salida y no necesita devolver un valor.
+// Muestra los datos de un producto en una sola línea.
 static void MostrarProducto(Producto producto)
 {
-    Console.WriteLine("Id: " + producto.Id + " | Nombre: " + producto.Nombre +
-                      " | Categoría: " + producto.Categoria + " | Precio: " +
-                      producto.Precio.ToString("C") + " | Stock: " + producto.Stock);
+    Console.WriteLine($"  Id: {producto.Id} | Nombre: {producto.Nombre} | " +
+                      $"Categoría: {producto.Categoria} | Precio: {producto.Precio:C} | " +
+                      $"Stock: {producto.Stock}");
 }
 
-// Recorre el inventario y muestra cada producto usando MostrarProducto.
-// Si no hay productos, informa al usuario y termina la función.
+// Muestra todos los productos registrados.
 static void MostrarProductos(Producto[] inventario, int totalProductos)
 {
+    MostrarEncabezado("INVENTARIO DE PRODUCTOS");
+
     if (totalProductos == 0)
     {
-        Console.WriteLine("No hay productos registrados.");
+        Console.WriteLine("[AVISO] No hay productos registrados.");
         return;
     }
 
@@ -349,27 +396,22 @@ static void MostrarProductos(Producto[] inventario, int totalProductos)
     }
 }
 
-// Realiza una venta:
-// 1. Solicita ID y cantidad.
-// 2. Busca el producto.
-// 3. Comprueba que exista stock suficiente.
-// 4. Calcula subtotal, descuento y total.
-// 5. Descuenta la cantidad del inventario solo después de validar todo.
+// Valida una venta, calcula su total y actualiza el stock.
 static void Vender(Producto[] inventario, int totalProductos, decimal descuento)
 {
-    int id = LeerEntero("Id del producto: ", 1, int.MaxValue);
-    int cantidad = LeerEntero("Cantidad: ", 1, int.MaxValue);
+    int id = LeerEntero("  Id del producto: ", 1, int.MaxValue);
+    int cantidad = LeerEntero("  Cantidad: ", 1, int.MaxValue);
     int posicion = BuscarProducto(inventario, totalProductos, id);
 
     if (posicion == -1)
     {
-        Console.WriteLine("Producto no encontrado.");
+        Console.WriteLine("\n[AVISO] Producto no encontrado.");
         return;
     }
 
     if (cantidad > inventario[posicion].Stock)
     {
-        Console.WriteLine("Stock insuficiente.");
+        Console.WriteLine("\n[AVISO] Stock insuficiente.");
         return;
     }
 
@@ -378,63 +420,64 @@ static void Vender(Producto[] inventario, int totalProductos, decimal descuento)
     decimal total = subtotal - descuentoAplicado;
     inventario[posicion].Stock -= cantidad;
 
-    Console.WriteLine("Subtotal: " + subtotal.ToString("C"));
-    Console.WriteLine("Descuento: " + descuentoAplicado.ToString("C"));
-    Console.WriteLine("Total: " + total.ToString("C"));
+    Console.WriteLine("\n------------------ RESUMEN DE COMPRA ------------------");
+    Console.WriteLine("  Subtotal:  " + subtotal.ToString("C"));
+    Console.WriteLine("  Descuento: " + descuentoAplicado.ToString("C"));
+    Console.WriteLine("  Total:     " + total.ToString("C"));
+    Console.WriteLine("--------------------------------------------------------");
 }
 
-// Aumenta el stock de un producto. También verifica que la suma no supere
-// el valor máximo permitido por un entero.
+// Aumenta el stock sin superar el límite de int.
 static void AgregarStock(Producto[] inventario, int totalProductos)
 {
-    int id = LeerEntero("Id del producto: ", 1, int.MaxValue);
-    int cantidad = LeerEntero("Cantidad a agregar: ", 1, int.MaxValue);
+    int id = LeerEntero("  Id del producto: ", 1, int.MaxValue);
+    int cantidad = LeerEntero("  Cantidad a agregar: ", 1, int.MaxValue);
     int posicion = BuscarProducto(inventario, totalProductos, id);
 
     if (posicion == -1)
     {
-        Console.WriteLine("Producto no encontrado.");
+        Console.WriteLine("\n[AVISO] Producto no encontrado.");
     }
     else if (cantidad > int.MaxValue - inventario[posicion].Stock)
     {
-        Console.WriteLine("La cantidad supera el límite permitido.");
+        Console.WriteLine("\n[AVISO] La cantidad supera el límite permitido.");
     }
     else
     {
         inventario[posicion].Stock += cantidad;
-        Console.WriteLine("Stock actualizado.");
+        Console.WriteLine("\n[OK] Stock actualizado.");
     }
 }
 
-// Busca un producto y reemplaza sus datos editables mediante entradas validadas.
+// Reemplaza los datos editables de un producto existente.
 static void EditarProducto(Producto[] inventario, int totalProductos)
 {
-    int id = LeerEntero("Id del producto: ", 1, int.MaxValue);
+    int id = LeerEntero("  Id del producto: ", 1, int.MaxValue);
     int posicion = BuscarProducto(inventario, totalProductos, id);
 
     if (posicion == -1)
     {
-        Console.WriteLine("Producto no encontrado.");
+        Console.WriteLine("\n[AVISO] Producto no encontrado.");
         return;
     }
 
-    inventario[posicion].Nombre = LeerTexto("Nuevo nombre: ");
-    inventario[posicion].Categoria = LeerTexto("Nueva categoría: ");
-    inventario[posicion].Precio = LeerDecimal("Nuevo precio: ", 0.01m);
-    inventario[posicion].Stock = LeerEntero("Nuevo stock: ", 0, int.MaxValue);
-    Console.WriteLine("Producto editado.");
+    inventario[posicion].Nombre = LeerTexto("  Nuevo nombre: ");
+    inventario[posicion].Categoria = LeerTexto("  Nueva categoría: ");
+    inventario[posicion].Precio = LeerDecimal("  Nuevo precio: ", 0.01m);
+    inventario[posicion].Stock = LeerEntero("  Nuevo stock: ", 0, int.MaxValue);
+    Console.WriteLine("\n[OK] Producto editado correctamente.");
 }
 
-// Elimina un producto desplazando los siguientes elementos una posición hacia atrás.
-// ref permite modificar totalProductos fuera de la función.
+// Elimina un producto y compacta el arreglo.
+// ref actualiza el total de productos en el programa principal.
 static void EliminarProducto(Producto[] inventario, ref int totalProductos)
 {
-    int id = LeerEntero("Id del producto: ", 1, int.MaxValue);
+    int id = LeerEntero("  Id del producto: ", 1, int.MaxValue);
     int posicion = BuscarProducto(inventario, totalProductos, id);
 
     if (posicion == -1)
     {
-        Console.WriteLine("Producto no encontrado.");
+        Console.WriteLine("\n[AVISO] Producto no encontrado.");
         return;
     }
 
@@ -443,43 +486,45 @@ static void EliminarProducto(Producto[] inventario, ref int totalProductos)
         inventario[i] = inventario[i + 1];
     }
 
-    // Se reduce el contador y se limpia la última posición para no dejar datos antiguos.
+    // Se limpia la posición que quedó libre.
     totalProductos--;
     inventario[totalProductos] = new Producto();
-    Console.WriteLine("Producto eliminado.");
+    Console.WriteLine("\n[OK] Producto eliminado correctamente.");
 }
 
-// Revisa el stock de cada producto y muestra alertas de agotamiento o stock bajo.
+// Muestra alertas de agotamiento o stock bajo.
 static void VerAlertas(Producto[] inventario, int totalProductos)
 {
+    MostrarEncabezado("ALERTAS DE STOCK");
     bool hayAlertas = false;
     for (int i = 0; i < totalProductos; i++)
     {
         if (inventario[i].Stock == 0)
         {
-            Console.WriteLine(inventario[i].Nombre + ": agotado");
+            Console.WriteLine($"  [AGOTADO] {inventario[i].Nombre}");
             hayAlertas = true;
         }
         else if (inventario[i].Stock <= 5)
         {
-            Console.WriteLine(inventario[i].Nombre + ": stock bajo");
+            Console.WriteLine($"  [STOCK BAJO] {inventario[i].Nombre}");
             hayAlertas = true;
         }
     }
 
     if (!hayAlertas)
     {
-        Console.WriteLine("No hay alertas.");
+        Console.WriteLine("  No hay alertas.");
     }
 }
 
-// Calcula el valor total del inventario, el promedio de precios
-// y los productos con precio máximo y mínimo.
+// Calcula el valor total, precios extremos y promedio.
 static void Reporte(Producto[] inventario, int totalProductos)
 {
+    MostrarEncabezado("REPORTE DEL INVENTARIO");
+
     if (totalProductos == 0)
     {
-        Console.WriteLine("No hay productos registrados.");
+        Console.WriteLine("[AVISO] No hay productos registrados.");
         return;
     }
 
@@ -503,64 +548,13 @@ static void Reporte(Producto[] inventario, int totalProductos)
         }
     }
 
-    Console.WriteLine("Valor total del inventario: " + valorTotal.ToString("C"));
-    Console.WriteLine("Producto más caro: " + masCaro.Nombre);
-    Console.WriteLine("Producto más barato: " + masBarato.Nombre);
-    Console.WriteLine("Precio promedio: " + (sumaPrecios / totalProductos).ToString("C"));
+    Console.WriteLine($"  Valor total del inventario: {valorTotal:C}");
+    Console.WriteLine($"  Producto más caro:          {masCaro.Nombre}");
+    Console.WriteLine($"  Producto más barato:        {masBarato.Nombre}");
+    Console.WriteLine($"  Precio promedio:            {sumaPrecios / totalProductos:C}");
 }
 
- 
-void CrearUsuario()
-{
-    if (totalUsuarios >= usuarios.Length)
-    {
-        Console.WriteLine("Lo sentimos, ya no hay espacio para más usuarios, intente mas tarde");
-        return;
-    }
- 
-    string nombre = LeerTexto("Nuevo nombre de usuario: ");
- 
-    if (nombre == "")
-    {
-        Console.WriteLine("El nombre no puede estar vacío");
-        return;
-    }
- 
-    // Revisa que el nombre no esté ocupado
-    for (int i = 0; i < totalUsuarios; i++)
-    {
-        if (usuarios[i].Username == nombre)
-        {
-            Console.WriteLine("Ese usuario ya existe");
-            return;
-        }
-    }
- 
-    string contrasena = LeerTexto("Contraseña: ");
-    string confirmacion = LeerTexto("Confirma la contraseña: ");
- 
-    if (contrasena == "")
-    {
-        Console.WriteLine("La contraseña no puede estar vacía");
-        return;
-    }
- 
-    if (contrasena != confirmacion)
-    {
-        Console.WriteLine("Las contraseñas no coinciden");
-        return;
-    }
- 
-    // Se guarda en el siguiente espacio libre
-    usuarios[totalUsuarios].Username = nombre;
-    usuarios[totalUsuarios].Password = contrasena;
-    usuarios[totalUsuarios].IsAdmin = false;   // los usuarios nuevos siempre son normales
-    totalUsuarios = totalUsuarios + 1;
- 
-    Console.WriteLine("Usuario creado. Ya puedes iniciar sesión");
-}
-// Struct que agrupa todos los datos relacionados con un producto.
-// Se utiliza como tipo de dato para guardar elementos en el arreglo inventario.
+// Agrupa los datos necesarios para representar un producto.
 struct Producto
 {
     public int Id;
@@ -570,10 +564,10 @@ struct Producto
     public int Stock;
 }
 
+// Agrupa las credenciales y el tipo de acceso de cada usuario.
 struct Usuario
 {
     public string Username;
     public string Password;
     public bool IsAdmin;
 }
-
